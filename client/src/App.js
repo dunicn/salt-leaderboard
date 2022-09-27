@@ -30,7 +30,7 @@ const StyledButton = styled.button`
   border-radius: 10px;
   margin-left: 10px;
   margin-top: 5px;
-  
+
   &:hover {
     background-color: #ffae9f;
   }
@@ -98,14 +98,19 @@ const App = () => {
 
   useEffect(() => {
 
-    fetch(`/api/players`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    })
-      .then((res) => res.json())
-      .then((data) => setLeaderboard(data))
+    const scores = JSON.parse(localStorage.getItem('scores'));
+    if (scores) {
+      setLeaderboard(scores);
+    }
+
+    // fetch(`/api/players`, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Accept': 'application/json'
+    //   }
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => setLeaderboard(data))
   }, []);
 
 
@@ -126,8 +131,12 @@ const App = () => {
   }
 
   const handleScore = (e) => {
-    const newScore = `${e.target.value.split(':')[0]} min ${e.target.value.split(':')[1]} sec`
-    setScore(newScore)
+    if (!e.target.value.split(':')[1]) {
+      setScore(`${e.target.value} min`)
+    } else {
+      const newScore = `${e.target.value.split(':')[0]} min ${e.target.value.split(':')[1]} sec`
+      setScore(newScore)
+    }
 
   }
 
@@ -135,17 +144,18 @@ const App = () => {
     e.preventDefault()
 
     const newScore = { name: name, score: score }
-    fetch("/api/players", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newScore),
+    // fetch("/api/players", {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(newScore),
 
-    })
-      .then((res) => res.json())
+    // })
+    //   .then((res) => res.json())
 
     setLeaderboard([...leaderboard, newScore])
+    localStorage.setItem('scores', JSON.stringify(leaderboard))
     e.target.reset();
 
   }
