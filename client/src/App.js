@@ -1,12 +1,14 @@
-import './App.css';
 import styled from 'styled-components';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 const StyledApp = styled.div`
   text-align: center;
   display: flex;
   height: 100vh;
 	flex-direction: column;
+	// justify-content:center; 
+  // padding-bottom: 50px;
 	align-items:center;
   background-color: #F1FFFA;
 `
@@ -14,9 +16,8 @@ const StyledApp = styled.div`
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
-  width: 50%;
+  width: 60%;
   align-items: center;
-  // font-size: 1px;
   padding: 10px;
   margin-top: 50px;
   border-radius: 10px;
@@ -29,6 +30,7 @@ const StyledButton = styled.button`
   border-radius: 10px;
   margin-left: 10px;
   margin-top: 5px;
+  
   &:hover {
     background-color: #ffae9f;
   }
@@ -45,29 +47,43 @@ const StyledHeader = styled.h1`
   text-align: center
   `
 const StyledUl = styled.ul`
-  list-style-type: none;
-  // position: fixed;
-  
+	list-style-type: none;
+  margin: 5px;
+	// background: #3399ff;
+  padding: 20px;
 `
 
 const StyledLi = styled.li`
+  font-size: 28px;  
+  cursor: pointer;
+  border-style: none;
+  border-radius: 50px; 
   color: white;
-  margin: 4px;
-  position: relative;
-  z-index: 1;
-  font-size: 22px;
-  counter-increment: leaderboard;
-  width: 90%;
+  // background: #eee;
+  // width: 90%;
+  margin: 5px;
   padding: 7px 1px 2px 5px;
   background: linear-gradient(to right,  #ff7a62 50%, white);
 `
+// const StyledLi = styled.li`
+//   color: white;
+//   margin: 4px;
+//   position: relative;
+//   z-index: 1;
+//   font-size: 22px;
+//   counter-increment: leaderboard;
+//   width: 90%;
+//   padding: 7px 1px 2px 5px;
+//   background: linear-gradient(to right,  #ff7a62 50%, white);
+// `
 
 const StyledDiv = styled.div`
   position: fixed;
   margin-top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 450px;
+  // width: 450px;
+  width: 45%;
   // height: 350px;
   background: linear-gradient(to right, lightgray 20%, white);
   border-radius: 10px;
@@ -78,26 +94,22 @@ const App = () => {
 
   const [name, setName] = useState('')
   const [score, setScore] = useState('')
-  const [leaderboard, setLeaderboard] = useState([
-    { name: "Mike", score: '2 min 34 sec' },
-    { name: "Alex", score: '5 min 33 sec' },
-    { name: "Helen", score: '12 min 04 sec' },
-    { name: "Dave", score: '5 min 43 sec' },
-    { name: "Dwight", score: '7 min 24 sec' },
-    { name: "Oda", score: '3 min 14 sec' },
-    { name: "Emma", score: '2 min' },
-    { name: "Melissa", score: '2 min 49 sec' },
-    { name: "Miguel", score: '1 min 56 sec' },
-    { name: "Arthur", score: '12 min 56 sec' },
-    { name: "Fabio", score: '13 min 56 sec' },
-    { name: "Elizabeth", score: '14 min 56 sec' },
+  const [leaderboard, setLeaderboard] = useState([])
 
-  ])
+  useEffect(() => {
 
+    fetch(`/api/players`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => setLeaderboard(data))
+  }, []);
 
 
   const convertTime = (string) => {
-    // console.log(string.split(' ')[0] + string.split(' ')[2])
     const min = parseInt(string.split(' ')[0]) * 60
     const sec = parseInt(string.split(' ')[2])
     if (!sec) {
@@ -116,13 +128,22 @@ const App = () => {
   const handleScore = (e) => {
     const newScore = `${e.target.value.split(':')[0]} min ${e.target.value.split(':')[1]} sec`
     setScore(newScore)
+
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
     const newScore = { name: name, score: score }
-    // send this score to backend 
+    fetch("/api/players", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newScore),
+
+    })
+      .then((res) => res.json())
 
     setLeaderboard([...leaderboard, newScore])
     e.target.reset();
@@ -132,24 +153,19 @@ const App = () => {
   return (
     <StyledApp>
       <StyledForm onSubmit={handleSubmit}>
-        {/* <label htmlFor="name">Name:</label> */}
         <input
           type="text"
           name="name"
           placeholder='name'
-          // value={name}
           onChange={handleName}
         />
-        {/* <label htmlFor="name">Score:</label> */}
         <input
           type="text"
           name="score"
           placeholder='mm:ss'
-          // value={''}
           onChange={handleScore}
         />
         <StyledButton type="submit">Submit your score</StyledButton>
-        {/* <input type="submit" value="Submit" /> */}
       </StyledForm>
       <StyledDiv>
 
