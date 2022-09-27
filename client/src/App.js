@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 const StyledApp = styled.div`
   text-align: center;
@@ -16,7 +17,7 @@ const StyledApp = styled.div`
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 80%;
   align-items: center;
   padding: 10px;
   margin-top: 50px;
@@ -46,15 +47,16 @@ const StyledHeader = styled.h1`
   padding: 15px;
   text-align: center
   `
-const StyledUl = styled.ul`
-	list-style-type: none;
-  margin: 5px;
+const StyledUl = styled.ol`
+	list-style-type: upper-greek;
+  margin: 25px;
 	// background: #3399ff;
   padding: 20px;
 `
 
 const StyledLi = styled.li`
-  font-size: 28px;  
+  text-align: left;
+  font-size: 24px;  
   cursor: pointer;
   border-style: none;
   border-radius: 50px; 
@@ -63,6 +65,7 @@ const StyledLi = styled.li`
   // width: 90%;
   margin: 5px;
   padding: 7px 1px 2px 5px;
+  padding-left: 22px;
   background: linear-gradient(to right,  #ff7a62 50%, white);
 `
 // const StyledLi = styled.li`
@@ -78,16 +81,23 @@ const StyledLi = styled.li`
 // `
 
 const StyledDiv = styled.div`
+  display: flex;
+  flex-direction: column;
   position: fixed;
   margin-top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 20%;
+  // transform: translate(-50%, -50%);
   // width: 450px;
-  width: 45%;
+  width: 60%;
   // height: 350px;
   background: linear-gradient(to right, lightgray 20%, white);
   border-radius: 10px;
   box-shadow: 0 7px 30px rgba(62, 9, 11, .3);
+`
+
+const StyledUlDiv = styled.div`
+display: flex;
+flex-direction: column;
 `
 
 const App = () => {
@@ -143,7 +153,7 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const newScore = { name: name, score: score }
+    const newScore = { name: name, score: score, id: uuidv4() }
     // fetch("/api/players", {
     //   method: 'POST',
     //   headers: {
@@ -158,6 +168,12 @@ const App = () => {
     localStorage.setItem('scores', JSON.stringify(leaderboard))
     e.target.reset();
 
+  }
+
+  const removeScore = (id) => {
+    const updatedLeaderboard = leaderboard.filter(item => item.id !== id)
+    console.log(updatedLeaderboard)
+    setLeaderboard(updatedLeaderboard)
   }
 
   return (
@@ -180,9 +196,12 @@ const App = () => {
       <StyledDiv>
 
         <StyledHeader> {"<Salt />"} Leaderboard</StyledHeader>
-        <StyledUl>
-          {sortedList.map(item => <StyledLi key={item.score}>{item.name}: {item.score}</StyledLi>)}
-        </StyledUl>
+        <StyledUlDiv>
+          <StyledUl>
+            {sortedList.map(item => <StyledLi onClick={() => removeScore(item.id)} key={item.id}>{item.name}: {item.score}</StyledLi>)}
+          </StyledUl>
+
+        </StyledUlDiv>
       </StyledDiv >
     </StyledApp>
   );
